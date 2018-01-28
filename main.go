@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"golang.org/x/net/webdav"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 func main() {
@@ -14,6 +15,21 @@ func main() {
 
 	rootDir := os.Getenv("WEBDAV_ROOT_DIR")
 	listenAddress := os.Getenv("WEBDAV_LISTEN_ADDRESS")
+
+	if len(rootDir) == 0 {
+		rootDir = "/webdav"
+	}
+
+	if len(listenAddress) == 0 {
+		listenAddress = "localhost:8080"
+	}
+
+	kingpin.CommandLine.Help = "WEBDAV_ROOT_DIR, WEBDAV_LISTEN_ADDRESS are read from environment"
+	kingpin.CommandLine.Help += ", though command line flags have priority"
+	kingpin.Flag("rootdir", "directory to serve").Short('d').Default(rootDir).StringVar(&rootDir)
+	kingpin.Flag("listen", "listen on address:port").Short('l').Default(listenAddress).StringVar(&listenAddress)
+	kingpin.CommandLine.HelpFlag.Hidden()
+	kingpin.Parse()
 
 	log.Println("Config parameters:")
 	log.Printf(" listenAddress: %s\n", listenAddress)
